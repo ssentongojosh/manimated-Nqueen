@@ -20,18 +20,24 @@ class NqueenVisualization(Scene):
             return 
         
         for column in range(N):
-            
             if column in threatened_columns_set or (row - column) in threatened_negative_diagonals_set or (row + column) in threatened_positive_diagonals_set:
                 continue
+            #place queen and update sets
             self.main(row,column)
             threatened_columns_set.add(column)
             threatened_negative_diagonals_set.add(row - column)
             threatened_positive_diagonals_set.add(row + column)
+
+            #recursive call function to place next queen
             self.solution(N,row + 1)
+
+            # backtrack: remove queen and update sets
             threatened_columns_set.remove(column)
             threatened_negative_diagonals_set.remove(row - column)
             threatened_positive_diagonals_set.remove(row + column)
+            
             # create function that removes a placed queen
+
 
     def main(self,row,column,remove = False):    
         self.N = 3

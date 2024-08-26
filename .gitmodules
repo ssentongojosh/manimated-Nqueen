@@ -1,3 +1,6 @@
 [submodule "manim_chess"]
 	path = manim_chess
 	url = https://github.com/patrik-ha/manim-chess.git
+[submodule "new_manim_chess"]
+	path = manim_chess
+	url = https://github.com/patrik-ha/manim-chess.git
