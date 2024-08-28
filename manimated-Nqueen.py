@@ -8,8 +8,8 @@ class NqueenVisualization(Scene):
     threatened_positive_diagonals_set = set()
 
     def construct(self):
-        N = 3
-        board = ChessBoard("3/3/3")
+        N = 4
+        board = ChessBoard("4/4/4/4")
         self.add((board).move_to(ORIGIN))
         self.wait()
         self.solution(N,1)
@@ -41,7 +41,7 @@ class NqueenVisualization(Scene):
             # create function that removes a placed queen
             self.main(row,column,remove=True)
     def main(self,row,column,remove = False):    
-        self.N = 3
+        self.N = 4
         for row in range(row,row+1):
             for column in range(column,column+1):
                 
@@ -94,7 +94,7 @@ class NqueenVisualization(Scene):
         square = list2[0]
         for   i in range(row-1):
             list2.remove(square)
-            list2.insert(i,"3") 
+            list2.insert(i,"4") 
         fenstring = "/".join(list2)
         return fenstring
 
