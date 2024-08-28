@@ -2,13 +2,14 @@ from manim import *
 from chess_board import ChessBoard
            
 class NqueenVisualization(Scene):
-    
+    boardStatus = {}
 
     def construct(self):
+        N = 3
         board = ChessBoard("3/3/3")
         self.add((board).move_to(ORIGIN))
         self.wait()
-        self.solution(3,1)
+        self.solution(N,1)
 
     def solution(self,N,row):
         threatened_columns_set = set()
@@ -37,52 +38,51 @@ class NqueenVisualization(Scene):
             threatened_positive_diagonals_set.remove(row + column)
             
             # create function that removes a placed queen
-
-
+            self.main(row,column,remove=True)
     def main(self,row,column,remove = False):    
         self.N = 3
         for row in range(row,row+1):
             for column in range(column,column+1):
                 
-                if column == 0 and row < 3:
+                if column == 0 and row < self.N:
                     x = f"Q{self.N-(column+1)}/" * row + f"{self.N}/" * (self.N-(row+1)) + str(self.N)
-                    if remove == False:
+                    if not remove:
                         self.place_queen(row,column,x)
                     else:
                         self.place_queen(row,column,x,remove = True)    
         
-                elif (self.N-(column+1)) == 0 and row < 3:
+                elif (self.N-(column+1)) == 0 and row < self.N:
                     x = f"{column}Q/" * row + f"{self.N}/" * (self.N-(row+1)) + str(self.N)
-                    if remove == False:
+                    if not remove:
                         self.place_queen(row,column,x)
                     else:
                         self.place_queen(row,column,x,remove = True) 
     
-                elif row >= 3:
+                elif row >= self.N:
                     if column == 0:     
                         x = f"Q{self.N-(column+1)}/" * (row-1) + f"Q{self.N-(column+1)}"
-                        if remove == False:
+                        if not remove:
                             self.place_queen(row,column,x)
                         else:
                             self.place_queen(row,column,x,remove = True) 
                         
                     elif (self.N-(column+1)) == 0:
                         x = f"{column}Q/" * (row-1) + f"{column}Q"
-                        if remove == False:
+                        if not remove:
                             self.place_queen(row,column,x)
                         else:
                             self.place_queen(row,column,x,remove = True) 
                         
                     else:
                         x = f"{column}Q{self.N-(column+1)}/" * (row-1) + f"{column}Q{self.N-(column+1)}" 
-                        if remove == False:
+                        if not remove:
                             self.place_queen(row,column,x)
                         else:
                             self.place_queen(row,column,x,remove = True) 
 
                 else:
                     x = f"{column}Q{self.N-(column+1)}/" * row + f"{self.N}/" * (self.N-(row+1)) + str(self.N)
-                    if remove == False:
+                    if not remove:
                         self.place_queen(row,column,x)
                     else:
                         self.place_queen(row,column,x,remove = True) 
@@ -99,16 +99,22 @@ class NqueenVisualization(Scene):
 
     def place_queen(self,row,column,x,remove = False):
         board = ChessBoard(self.fenstring_generator(row,x))
-        self.add((board).move_to(ORIGIN))
-        self.wait()
+        if not remove:
+            self.add(board.move_to(ORIGIN))
+            self.wait()
+            NqueenVisualization.boardStatus[x] = board
+        else:
+            y = list(NqueenVisualization.boardStatus.items())[-1][0]
+            boardy = list(NqueenVisualization.boardStatus.items())[-1][1]
+            self.remove_queen(row,column,y,boardy) 
         
     def remove_queen(self,row,column,x,board):
         fade_out,movement = board.move_piece(row-1, column, row-1, column)
+        self.add((board).move_to(ORIGIN))
         self.play(fade_out)
-        self.wait()    
-
-    
-        
+        self.wait()
+        NqueenVisualization.boardStatus.popitem()
+            
 
     
         
