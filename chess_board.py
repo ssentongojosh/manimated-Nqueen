@@ -13,6 +13,7 @@ class ChessBoard(Mobject):
         self.fen_rows, self.dims = self._read_fen(fen)
         self.icons = [[None for _ in range(self.dims[1])] for _ in range(self.dims[0])]
         self.squares = [[None for _ in range(self.dims[1])] for _ in range(self.dims[0])]
+        self.square_size = 1.0  # Add square_size property
         self.draw_empty_board()
         self.draw_pieces()
 
@@ -37,7 +38,7 @@ class ChessBoard(Mobject):
         self.add(group)
 
     def add_highlight(self, i, j, color):
-        square = Square(0.999, stroke_width=0, fill_color=color, fill_opacity=0.7)
+        square = Square(self.square_size - 0.001, stroke_width=0, fill_color=color, fill_opacity=0.7)
         square.move_to(self.squares[i][j])
         self.add(square)
         
@@ -47,18 +48,39 @@ class ChessBoard(Mobject):
                 icon = self.icons[i][j]
                 if icon is not None:
                     alpha = opacities[i, j]
-                    alpha_mask = np.copy(icon.pixel_array[:, :, 3]) != 0
-                    icon.pixel_array[:, :, 3] = int(255 * alpha) * alpha_mask
+                    # Use set_opacity which works consistently across Manim versions
+                    icon.set_opacity(alpha)
 
     def _piece_to_icon(self, c):
-        prefix = "w" if c.isupper() else "b"
-        prefix = prefix if not c.isspace() else ""
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        piece_path = os.path.join(dir_path, "png_pieces/{}.png".format(prefix + c.upper()))
-        icon = ImageMobject(piece_path)
-        icon.set_x(0)
-        icon.set_y(0)
-        icon.scale(0.27)
+        # Use simple Circle objects instead of Groups to avoid Transform issues
+        if c.lower() == 'q':  # Queen
+            icon = Circle(
+                radius=0.35, 
+                fill_color=WHITE if c.isupper() else BLACK, 
+                fill_opacity=1.0, 
+                stroke_color=BLACK, 
+                stroke_width=3
+            )
+            # Add a simple visual distinction for queens (small inner circle)
+            inner = Circle(
+                radius=0.15, 
+                fill_color=YELLOW, 
+                fill_opacity=1.0, 
+                stroke_color=BLACK, 
+                stroke_width=1
+            )
+            icon.add(inner)
+        else:
+            # Simple circle for other pieces
+            icon = Circle(
+                radius=0.25, 
+                fill_color=WHITE if c.isupper() else BLACK, 
+                fill_opacity=1.0, 
+                stroke_color=BLACK, 
+                stroke_width=2
+            )
+        
+        icon.scale(0.8)
         if c.lower() == "k":
             icon.shift(UP * 0.035)
         return icon
@@ -85,7 +107,7 @@ class ChessBoard(Mobject):
         for i in range(self.dims[0]):
             for j in range(self.dims[1]):
                 if not self.fen_rows[i][j].isspace():
-                    icon = self._piece_to_icon(self.fen_rows[i][j]).shift(i * DOWN + j * RIGHT).set_z_index(PIECE_Z)
+                    icon = self._piece_to_icon(self.fen_rows[i][j]).shift(i * DOWN * self.square_size + j * RIGHT * self.square_size).set_z_index(PIECE_Z)
                     self.icons[i][j] = icon
         
         for row in self.icons:
@@ -98,9 +120,9 @@ class ChessBoard(Mobject):
         for i in range(self.dims[0]):
             for j in range(self.dims[1]):
                 color = "#B58863" if ((i + j + 1) % 2) == 0 else "#F0D9B5"
-                square = Square(0.999, stroke_color=BLACK, stroke_width=0)
+                square = Square(self.square_size - 0.001, stroke_color=BLACK, stroke_width=0)
                 square.set_fill(color, 1)
-                square.shift(i * DOWN + j * RIGHT)
+                square.shift(i * DOWN * self.square_size + j * RIGHT * self.square_size)
                 square.set_z(SQUARE_Z)
                 self.squares[i][j] = square
 
